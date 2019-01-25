@@ -2,37 +2,55 @@
 
 Backup PostgresSQL to S3 (supports periodic backups)
 
-## Usage
 
-Docker:
-```sh
-$ docker run -e S3_ACCESS_KEY_ID=key -e S3_SECRET_ACCESS_KEY=secret -e S3_BUCKET=my-bucket -e S3_PREFIX=backup -e POSTGRES_DATABASE=dbname -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_HOST=localhost schickling/postgres-backup-s3
-```
+### Usage:
 
-Docker Compose:
+docker-compose:
 ```yaml
-postgres:
-  image: postgres
-  environment:
-    POSTGRES_USER: user
-    POSTGRES_PASSWORD: password
-
 pgbackups3:
-  image: schickling/postgres-backup-s3
-  links:
-    - postgres
-  environment:
-    SCHEDULE: '@daily'
-    S3_REGION: region
-    S3_ACCESS_KEY_ID: key
-    S3_SECRET_ACCESS_KEY: secret
-    S3_BUCKET: my-bucket
-    S3_PREFIX: backup
-    POSTGRES_DATABASE: dbname
-    POSTGRES_USER: user
-    POSTGRES_PASSWORD: password
-    POSTGRES_EXTRA_OPTS: '--schema=public --blobs'
+    image: registry.selectcode.de/selectcode/docker/postgres-backup
+    container_name: telembackup
+    restart: always
+    environment:
+      SCHEDULE: ${SCHEDULE}
+      S3_REGION: region
+      S3_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY}
+      S3_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY}
+      S3_BUCKET: econap-telemetrics
+      S3_PREFIX: backup
+      S3_ENDPOINT: https://s3.selectcode.de
+      S3_S3V4: "yes"
+      POSTGRES_HOST: telemetricsdb
+      POSTGRES_DATABASE: api_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_EXTRA_OPTS: '--schema=api --blobs'
 ```
+
+**.gitlab-ci.yml**
+```yaml
+before_script:
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+prepare:backup:
+  stage: prepare
+  script:
+    - docker-compose run --rm pgbackups3
+  tags:
+    - deployinfra
+
+deploy:backup:
+  stage: deploy
+  variables:
+    SCHEDULE: "@daily"
+  script:
+    - docker-compose run -d -e SCHEDULE="@daily" pgbackups3
+  tags:
+    - deployinfra
+
+
+```
+
 
 ### Automatic Periodic Backups
 
