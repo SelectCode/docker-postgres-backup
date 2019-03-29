@@ -1,6 +1,4 @@
-# postgres-backup-s3
-
-Backup PostgresSQL to S3 (supports periodic backups)
+# S3 Postgres Backup in Docker 🐳
 
 
 ### Usage:
@@ -8,8 +6,8 @@ Backup PostgresSQL to S3 (supports periodic backups)
 docker-compose:
 ```yaml
 pgbackups3:
-    image: registry.selectcode.de/selectcode/docker/postgres-backup
-    container_name: telembackup
+    image: selectcode/postgres-backup
+    container_name: backup
     restart: always
     environment:
       SCHEDULE: ${SCHEDULE}
@@ -18,9 +16,9 @@ pgbackups3:
       S3_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY}
       S3_BUCKET: econap-telemetrics
       S3_PREFIX: backup
-      S3_ENDPOINT: https://s3.selectcode.de
+      S3_ENDPOINT: ${S3_URL}
       S3_S3V4: "yes"
-      POSTGRES_HOST: telemetricsdb
+      POSTGRES_HOST: pgdb
       POSTGRES_DATABASE: api_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -32,22 +30,19 @@ pgbackups3:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
+// One-Time Run
 prepare:backup:
   stage: prepare
   script:
     - docker-compose run --rm pgbackups3
-  tags:
-    - deployinfra
 
+// Daily Run
 deploy:backup:
   stage: deploy
   variables:
     SCHEDULE: "@daily"
   script:
     - docker-compose run -d -e SCHEDULE="@daily" pgbackups3
-  tags:
-    - deployinfra
-
 
 ```
 
