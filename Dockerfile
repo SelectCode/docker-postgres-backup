@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine
 LABEL maintainer="Florian Baader <florian.baader@selectcode.de>"
 
 ADD install.sh install.sh
