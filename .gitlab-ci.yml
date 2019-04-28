@@ -8,11 +8,19 @@ services:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
-build-master:
+build:11:
   stage: build
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
-    - docker push "$CI_REGISTRY_IMAGE"
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:11" --build-arg PSQL_VERSION=11 .
+    - docker push "$CI_REGISTRY_IMAGE:11"
+  only:
+    - master
+
+build:11:
+  stage: build
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:11" --build-arg PSQL_VERSION=10 .
+    - docker push "$CI_REGISTRY_IMAGE:10"
   only:
     - master
 

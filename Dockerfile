@@ -1,4 +1,5 @@
-FROM alpine
+ARG PSQL_VERSION=11
+FROM postgres:$PSQL_VERSION-alpine
 LABEL maintainer="Florian Baader <florian.baader@selectcode.de>"
 
 ADD install.sh install.sh
