@@ -8,35 +8,25 @@ services:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
-build:11:
+.build:
   stage: build
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:11" --build-arg PSQL_VERSION=11 .
-    - docker push "$CI_REGISTRY_IMAGE:11"
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:$PSQL_VERSION" --build-arg PSQL_VERSION=$PSQL_VERSION .
+    - docker push "$CI_REGISTRY_IMAGE:$PSQL_VERSION"
   only:
     - master
+
+build:11:
+  extends: .build
+  variables:
+    PSQL_VERSION: 11
 
 build:10:
-  stage: build
-  script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:10" --build-arg PSQL_VERSION=10 .
-    - docker push "$CI_REGISTRY_IMAGE:10"
-  only:
-    - master
+  extends: .build
+  variables:
+    PSQL_VERSION: 10
 
 build:9.5:
-  stage: build
-  script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:10" --build-arg PSQL_VERSION=9.5 .
-    - docker push "$CI_REGISTRY_IMAGE:9.5"
-  only:
-    - master
-
-
-build:
-  stage: build
-  script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
-  except:
-    - master
+  extends: .build
+  variables:
+    PSQL_VERSION: 9.5
