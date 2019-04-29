@@ -24,6 +24,15 @@ build:10:
   only:
     - master
 
+build:9.5:
+  stage: build
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:10" --build-arg PSQL_VERSION=9.5 .
+    - docker push "$CI_REGISTRY_IMAGE:9.5"
+  only:
+    - master
+
+
 build:
   stage: build
   script:
