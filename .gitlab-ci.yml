@@ -19,14 +19,14 @@ before_script:
 build:11:
   extends: .build
   variables:
-    PSQL_VERSION: 11
+    PSQL_VERSION: '11'
 
 build:10:
   extends: .build
   variables:
-    PSQL_VERSION: 10
+    PSQL_VERSION: '10'
 
 build:9.5:
   extends: .build
   variables:
-    PSQL_VERSION: 9.5
+    PSQL_VERSION: '9.5'
