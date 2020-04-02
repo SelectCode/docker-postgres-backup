@@ -2,17 +2,20 @@
 # Official docker image.
 image: docker:latest
 
+variables:
+  IMAGE: "selectcode/posgres-backup"
+
 services:
   - docker:dind
 
 before_script:
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  - docker login -u flobaader -p "$DOCKER_TOKEN"
 
 .build:
   stage: build
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:$PSQL_VERSION" --build-arg PSQL_VERSION=$PSQL_VERSION .
-    - docker push "$CI_REGISTRY_IMAGE:$PSQL_VERSION"
+    - docker build --pull -t "$IMAGE:$PSQL_VERSION" --build-arg PSQL_VERSION=$PSQL_VERSION .
+    - docker push "$IMAGE:$PSQL_VERSION"
   only:
     - master
 
