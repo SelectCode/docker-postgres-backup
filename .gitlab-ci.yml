@@ -3,7 +3,7 @@
 image: docker:latest
 
 variables:
-  IMAGE: "selectcode/posgres-backup"
+  IMAGE: "selectcode/postgres-backup"
 
 services:
   - docker:dind
